@@ -1,0 +1,10 @@
+[package]
+name = "genpasswd"
+version = "0.1.0"
+authors = ["Jesse Stricker"]
+description = "An easy-peasy password generator for the command line."
+edition = "2021"
+
+[dependencies]
+clap = { version = "3.1", features = ["derive"] }
+rand = "0.8"
