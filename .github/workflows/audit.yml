@@ -1,4 +1,4 @@
-name: Rust
+name: Security Audit
 
 on:
   push:
@@ -12,11 +12,9 @@ on:
   schedule:
     - cron: '0 0 * * *'
 
-env:
-  CARGO_TERM_COLOR: always
-
 jobs:
   audit:
+    name: Security Audit
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
