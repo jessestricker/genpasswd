@@ -21,7 +21,7 @@ USAGE:
 OPTIONS:
     -h, --help               Print help information
     -n, --length <LENGTH>    The length of the generated password
-    -t, --type <TYPE>        The set of characters to choose from [default: ascii] [possible values:
-                             letters, digits, letters-digits, ascii]
+    -t, --type <TYPE>        The set of characters to choose from [default: ascii] 
+                             [possible values: letters, digits, letters-digits, ascii]
     -V, --version            Print version information
 ```
