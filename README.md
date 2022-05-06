@@ -20,8 +20,10 @@ USAGE:
 
 OPTIONS:
     -h, --help               Print help information
-    -n, --length <LENGTH>    The length of the generated password
+    -l, --length <LENGTH>    The length of each generated password
+    -n, --count <COUNT>      The number of generated passwords [default: 1]
     -t, --type <TYPE>        The set of characters to choose from [default: ascii] 
                              [possible values: letters, digits, letters-digits, ascii]
+    -v, --verbose            Write information about the generated passwords to `stderr`
     -V, --version            Print version information
 ```

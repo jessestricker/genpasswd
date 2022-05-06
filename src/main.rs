@@ -7,11 +7,11 @@ use std::fmt;
 #[derive(Parser)]
 #[clap(version, author, about)]
 struct Args {
-    /// The length of the generated password.
+    /// The length of each generated password.
     #[clap(short, long)]
     pub length: u16,
 
-    /// The length of the generated password.
+    /// The number of generated passwords.
     #[clap(short = 'n', long, default_value_t = 1)]
     pub count: u64,
 
@@ -19,7 +19,7 @@ struct Args {
     #[clap(short, long, arg_enum, default_value_t = Type::Ascii)]
     pub r#type: Type,
 
-    /// Write information about the generated password to `stderr`.
+    /// Write information about the generated passwords to `stderr`.
     #[clap(short, long)]
     verbose: bool,
 }
