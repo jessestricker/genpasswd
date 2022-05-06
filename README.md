@@ -4,7 +4,7 @@ An easy-peasy password generator for the command line.
 
 ## Features
 
-- **simple:** The application has intentionally few functions 
+- **simple:** The application has intentionally few features
   and uses sensible defaults.
 - **secure:** A small code base with few dependencies eases a security audit.
 
