@@ -4,8 +4,15 @@ use itertools::Itertools;
 use lazy_static::lazy_static;
 use std::fmt;
 
+/// An easy-peasy password generator for the command line.
+///
+/// The requested number of randomly generated password strings
+/// are printed line-by-line to standard output.
+///
+/// By default, `genpasswd` does **not** enforce that at least one
+/// character of each category (e.g. letter/digit/symbol) picked.
 #[derive(Parser)]
-#[clap(version, author, about)]
+#[clap(version, author)]
 struct Args {
     /// The length of each generated password.
     #[clap(short, long)]
@@ -19,7 +26,7 @@ struct Args {
     #[clap(short, long, arg_enum, default_value_t = Type::Ascii)]
     pub r#type: Type,
 
-    /// Write information about the generated passwords to `stderr`.
+    /// Write information about the generated passwords to standard error.
     #[clap(short, long)]
     verbose: bool,
 }
