@@ -1,6 +1,4 @@
-use itertools::Itertools;
 use std::collections::BTreeSet;
-use std::fmt;
 
 /// An ordered set of unique characters.
 pub type CharSet = BTreeSet<char>;
@@ -83,14 +81,5 @@ impl Password<'_> {
         (0..self.length)
             .map(|_| self.char_set.iter().choose(&mut rng).unwrap())
             .collect()
-    }
-}
-
-impl fmt::Display for Password<'_> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let char_set_str = self.char_set.iter().join("");
-        writeln!(f, "Characters: {}", char_set_str)?;
-        writeln!(f, "Length: {}", self.length)?;
-        Ok(())
     }
 }

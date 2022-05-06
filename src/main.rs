@@ -1,6 +1,8 @@
 use clap::{ArgEnum, Parser};
 use genpasswd::{chars, CharSet, Password};
+use itertools::Itertools;
 use lazy_static::lazy_static;
+use std::fmt;
 
 #[derive(Parser)]
 #[clap(version, author, about)]
@@ -20,6 +22,18 @@ struct Args {
     /// Write information about the generated password to `stderr`.
     #[clap(short, long)]
     verbose: bool,
+}
+
+impl fmt::Display for Args {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let char_set_str = self.r#type.char_set().iter().join("");
+
+        writeln!(f, "Characters: {}", char_set_str)?;
+        writeln!(f, "Length: {}", self.length)?;
+        writeln!(f, "Count: {}", self.count)?;
+
+        Ok(())
+    }
 }
 
 #[derive(ArgEnum, Clone)]
@@ -56,7 +70,7 @@ fn main() {
     };
 
     if args.verbose {
-        eprintln!("{}", passwd);
+        eprintln!("{}", args);
     }
 
     for _ in 0..args.count {
