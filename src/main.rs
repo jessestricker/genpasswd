@@ -24,6 +24,17 @@ struct Args {
     verbose: bool,
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn verify_app() {
+        use clap::CommandFactory;
+        Args::command().debug_assert();
+    }
+}
+
 impl fmt::Display for Args {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let char_set_str = self.r#type.char_set().iter().join("");
