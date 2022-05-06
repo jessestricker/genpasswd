@@ -12,7 +12,7 @@ use std::fmt;
 /// By default, `genpasswd` does **not** enforce that at least one
 /// character of each category (e.g. letter/digit/symbol) picked.
 #[derive(Parser)]
-#[clap(version, author)]
+#[clap(version, author, term_width = 80)]
 struct Args {
     /// The length of each generated password.
     #[clap(short, long)]
@@ -26,7 +26,7 @@ struct Args {
     #[clap(short, long, arg_enum, default_value_t = Type::Ascii)]
     pub r#type: Type,
 
-    /// Write information about the generated passwords to standard error.
+    /// Print information about the generated passwords to standard error.
     #[clap(short, long)]
     verbose: bool,
 }
