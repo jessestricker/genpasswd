@@ -12,6 +12,10 @@ struct Args {
     /// The set of characters to choose from.
     #[clap(short, long, arg_enum, default_value_t = Type::Ascii)]
     pub r#type: Type,
+
+    /// Write information about the generated password to `stderr`.
+    #[clap(short, long)]
+    verbose: bool,
 }
 
 #[derive(ArgEnum, Clone)]
@@ -46,6 +50,10 @@ fn main() {
         char_set: args.r#type.char_set(),
         length: args.length,
     };
+
+    if args.verbose {
+        eprintln!("{}", passwd);
+    }
 
     let passwd_str = passwd.generate();
     println!("{}", passwd_str);

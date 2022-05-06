@@ -1,4 +1,6 @@
+use itertools::Itertools;
 use std::collections::BTreeSet;
+use std::fmt;
 
 /// An ordered set of unique characters.
 pub type CharSet = BTreeSet<char>;
@@ -71,7 +73,7 @@ pub struct Password<'a> {
     pub length: u16,
 }
 
-impl<'a> Password<'a> {
+impl Password<'_> {
     /// Generates a random password string.
     pub fn generate(&self) -> String {
         use rand::prelude::*;
@@ -81,5 +83,14 @@ impl<'a> Password<'a> {
         (0..self.length)
             .map(|_| self.char_set.iter().choose(&mut rng).unwrap())
             .collect()
+    }
+}
+
+impl fmt::Display for Password<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let char_set_str = self.char_set.iter().join("");
+        writeln!(f, "Characters: {}", char_set_str)?;
+        writeln!(f, "Length: {}", self.length)?;
+        Ok(())
     }
 }
