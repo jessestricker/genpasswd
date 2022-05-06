@@ -6,8 +6,12 @@ use lazy_static::lazy_static;
 #[clap(version, author, about)]
 struct Args {
     /// The length of the generated password.
-    #[clap(short = 'n', long)]
+    #[clap(short, long)]
     pub length: u16,
+
+    /// The length of the generated password.
+    #[clap(short = 'n', long, default_value_t = 1)]
+    pub count: u64,
 
     /// The set of characters to choose from.
     #[clap(short, long, arg_enum, default_value_t = Type::Ascii)]
@@ -55,6 +59,8 @@ fn main() {
         eprintln!("{}", passwd);
     }
 
-    let passwd_str = passwd.generate();
-    println!("{}", passwd_str);
+    for _ in 0..args.count {
+        let passwd_str = passwd.generate();
+        println!("{}", passwd_str);
+    }
 }
