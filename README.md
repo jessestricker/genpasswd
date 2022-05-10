@@ -8,6 +8,25 @@ An easy-peasy password generator for the command line.
   and uses sensible defaults.
 - **secure:** A small code base with few dependencies eases a security audit.
 
+## Example
+
+```console
+$ genpasswd -l 16
+Tt/*sD0Y_Sgt6OlK
+
+$ genpasswd -l 24 -t letters-digits -v
+info: Characters: ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789
+info: Length: 24
+info: Count: 1
+L2AwPVt7XNBclET4BGoMflJC
+
+$ genpasswd -l 6 -t digits -n 4
+836634
+985309
+515779
+308633
+```
+
 ## Usage
 
 ```
