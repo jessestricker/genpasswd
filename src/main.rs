@@ -2,6 +2,7 @@ use clap::{ArgEnum, Parser};
 use genpasswd::chars::{Partition, PartitionSet};
 use genpasswd::Password;
 use itertools::Itertools;
+use log::{error, info};
 
 /// An easy-peasy password generator for the command line.
 ///
@@ -64,18 +65,53 @@ impl Type {
 fn main() {
     let args = Args::parse();
 
+    setup_logging(&args);
+    validate_cli(&args);
+
+    // set up password generator
     let passwd = Password::new(args.r#type.chars(), args.length);
 
-    if args.verbose {
-        let chars_str = passwd.chars().iter().join("");
-        eprintln!("Characters: {}", chars_str);
-        eprintln!("Length: {}", args.length);
-        eprintln!("Count: {}", args.count);
-        eprintln!();
-    }
+    // log password generator properties
+    let chars_str = passwd.chars().iter().join("");
+    info!("Characters: {}", chars_str);
+    info!("Length: {}", args.length);
+    info!("Count: {}", args.count);
 
+    // generate passwords
     for _ in 0..args.count {
         let passwd_str = passwd.generate();
         println!("{}", passwd_str);
+    }
+}
+
+fn setup_logging(args: &Args) {
+    use std::io::Write;
+
+    let log_level = if args.verbose {
+        log::LevelFilter::Info
+    } else {
+        log::LevelFilter::Warn
+    };
+
+    env_logger::Builder::new()
+        .filter(None, log_level)
+        .format(|fmt, record| {
+            let level_style = fmt.default_level_style(record.level());
+            let level_str = format!("{}:", record.level().as_str().to_ascii_lowercase());
+
+            writeln!(fmt, "{} {}", level_style.value(level_str), record.args())
+        })
+        .init();
+}
+
+fn validate_cli(args: &Args) {
+    if args.length == 0 {
+        error!("The length must not be zero");
+        std::process::exit(1);
+    }
+
+    if args.count == 0 {
+        error!("The count must not be zero");
+        std::process::exit(1);
     }
 }
