@@ -1,8 +1,7 @@
 use clap::{ArgEnum, Parser};
-use genpasswd::{chars, CharSet, Password};
+use genpasswd::chars::{Partition, PartitionSet};
+use genpasswd::Password;
 use itertools::Itertools;
-use lazy_static::lazy_static;
-use std::fmt;
 
 /// An easy-peasy password generator for the command line.
 ///
@@ -16,15 +15,15 @@ use std::fmt;
 struct Args {
     /// The length of each generated password.
     #[clap(short, long)]
-    pub length: u16,
+    length: u16,
 
     /// The number of generated passwords.
     #[clap(short = 'n', long, default_value_t = 1)]
-    pub count: u64,
+    count: u64,
 
     /// The set of characters to choose from.
     #[clap(short, long, arg_enum, default_value_t = Type::Ascii)]
-    pub r#type: Type,
+    r#type: Type,
 
     /// Print information about the generated passwords to standard error.
     #[clap(short, long)]
@@ -42,18 +41,6 @@ mod tests {
     }
 }
 
-impl fmt::Display for Args {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let char_set_str = self.r#type.char_set().iter().join("");
-
-        writeln!(f, "Characters: {}", char_set_str)?;
-        writeln!(f, "Length: {}", self.length)?;
-        writeln!(f, "Count: {}", self.count)?;
-
-        Ok(())
-    }
-}
-
 #[derive(ArgEnum, Clone)]
 enum Type {
     Letters,
@@ -62,19 +49,14 @@ enum Type {
     Ascii,
 }
 
-lazy_static! {
-    static ref LETTERS: CharSet = &*chars::LETTERS_UPPER | &*chars::LETTERS_LOWER;
-    static ref LETTERS_AND_DIGITS: CharSet = &*LETTERS | &*chars::DIGITS;
-    static ref ASCII: CharSet = &*LETTERS_AND_DIGITS | &*chars::SYMBOLS;
-}
-
 impl Type {
-    fn char_set(&self) -> &'static CharSet {
+    fn chars(&self) -> PartitionSet {
+        use Partition::*;
         match self {
-            Type::Letters => &LETTERS,
-            Type::Digits => &chars::DIGITS,
-            Type::LettersDigits => &LETTERS_AND_DIGITS,
-            Type::Ascii => &ASCII,
+            Type::Letters => PartitionSet::from([LettersUpper, LettersLower]),
+            Type::Digits => PartitionSet::from([Digits]),
+            Type::LettersDigits => PartitionSet::from([LettersUpper, LettersLower, Digits]),
+            Type::Ascii => PartitionSet::from([LettersUpper, LettersLower, Digits, Symbols]),
         }
     }
 }
@@ -82,13 +64,14 @@ impl Type {
 fn main() {
     let args = Args::parse();
 
-    let passwd = Password {
-        char_set: args.r#type.char_set(),
-        length: args.length,
-    };
+    let passwd = Password::new(args.r#type.chars(), args.length);
 
     if args.verbose {
-        eprintln!("{}", args);
+        let chars_str = passwd.chars().iter().join("");
+        eprintln!("Characters: {}", chars_str);
+        eprintln!("Length: {}", args.length);
+        eprintln!("Count: {}", args.count);
+        eprintln!();
     }
 
     for _ in 0..args.count {
