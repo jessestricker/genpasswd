@@ -1,65 +1,85 @@
-on:
-  push:
-
 name: Continuous Integration
 
-jobs:
-  check:
-    name: Check
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
-      - uses: actions-rs/cargo@v1
-        with:
-          command: check
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
 
+jobs:
   test:
-    name: Test
-    runs-on: ubuntu-latest
+    name: Build & Test
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions-rs/toolchain@v1
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
         with:
           profile: minimal
           toolchain: stable
           override: true
-      - uses: actions-rs/cargo@v1
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v1
+
+      - name: Build via Cargo
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --all-targets --all-features --verbose --locked
+
+      - name: Test via Cargo
+        uses: actions-rs/cargo@v1
         with:
           command: test
+          args: --all-targets --all-features --verbose --locked
 
-  fmt:
-    name: Format
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
-      - run: rustup component add rustfmt
-      - uses: actions-rs/cargo@v1
-        with:
-          command: fmt
-          args: --all -- --check
-
-  clippy:
+  lint:
     name: Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions-rs/toolchain@v1
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
         with:
-          profile: minimal
           toolchain: stable
+          profile: minimal
           override: true
-      - run: rustup component add clippy
-      - uses: actions-rs/cargo@v1
+          components: clippy
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v1
+
+      - name: Run Clippy via Cargo
+        uses: actions-rs/cargo@v1
         with:
           command: clippy
-          args: -- -D warnings
+          args: --all-targets --all-features --verbose --locked -- -D warnings
+
+  format:
+    name: Format
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+          components: rustfmt
+
+      - name: Run Rustfmt via Cargo
+        uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: --check --all --verbose
