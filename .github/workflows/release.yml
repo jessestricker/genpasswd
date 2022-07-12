@@ -1,0 +1,86 @@
+name: Release
+
+on:
+  push:
+    tags: ["v[0-9]+.[0-9]+.[0-9]+**"]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build & Upload
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+          - os: macos-latest
+            target: x86_64-apple-darwin
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          target: ${{ matrix.target }}
+          override: true
+
+      - name: Build via Cargo
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --bins --all-features --target=${{ matrix.target }} --release --verbose --locked
+
+      - name: Test via Cargo
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --all-targets --all-features --target=${{ matrix.target }} --release --verbose --locked
+
+      - name: Install via Cargo
+        uses: actions-rs/cargo@v1
+        with:
+          command: install
+          args: --path=. --no-track --root=./target/dist --all-features --target=${{ matrix.target }} --locked --verbose
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ github.event.repository.name }}-${{ github.ref_name }}-${{ matrix.target }}
+          path: ./target/dist/bin
+
+  release:
+    name: Publish Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install additional tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install tree
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        id: download
+
+      - name: Create ZIP archives
+        run: |
+          set -x
+          dirs=$(find '.' -mindepth 1 -maxdepth 1 -type d)
+          for dir in $dirs; do
+            zip -r -j "$(basename "$dir").zip" "$dir"
+          done
+
+      - name: Display build artifacts
+        run: tree
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: true
+          files: "*.zip"
