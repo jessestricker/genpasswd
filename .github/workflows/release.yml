@@ -42,17 +42,16 @@ jobs:
           command: test
           args: --all-targets --all-features --target=${{ matrix.target }} --release --verbose --locked
 
-      - name: Install via Cargo
-        uses: actions-rs/cargo@v1
+      - uses: ./.github/actions/rust-package-binary
+        id: package
         with:
-          command: install
-          args: --path=. --no-track --root=./target/dist --all-features --target=${{ matrix.target }} --locked --verbose
+          target: ${{ matrix.target }}
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ github.event.repository.name }}-${{ github.ref_name }}-${{ matrix.target }}
-          path: ./target/dist/bin
+          name: ${{ steps.package.outputs.archive-name }}
+          path: ${{ steps.package.outputs.archive-file }}
 
   release:
     name: Publish Release
@@ -66,15 +65,6 @@ jobs:
 
       - name: Download build artifacts
         uses: actions/download-artifact@v3
-        id: download
-
-      - name: Create ZIP archives
-        run: |
-          set -x
-          dirs=$(find '.' -mindepth 1 -maxdepth 1 -type d)
-          for dir in $dirs; do
-            zip -r -j "$(basename "$dir").zip" "$dir"
-          done
 
       - name: Display build artifacts
         run: tree
@@ -83,4 +73,4 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           draft: true
-          files: "*.zip"
+          files: "*"

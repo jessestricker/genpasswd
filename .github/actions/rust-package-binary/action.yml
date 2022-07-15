@@ -1,0 +1,35 @@
+name: "Rust: Package Binary"
+description: "Package binary releases for Rust projects."
+
+inputs:
+  package:
+    description: |
+      The name of the Cargo package to build.
+      If there are multiple packages defined in the repository, this must be set.
+    required: false
+  target:
+    description: |
+      The target triple of the platform to build for.
+      This will be passed to `cargo install` via `--target=...`.
+      If no value is given, Cargo will decide on its own.
+    required: false
+
+outputs:
+  archive-file:
+    description: |
+      The path to the archive file containing the binaries.
+    value: ${{ steps.main.outputs.archive-file }}
+  archive-name:
+    description: |
+      The name part of the archive file path.
+    value: ${{ steps.main.outputs.archive-name }}
+
+runs:
+  using: composite
+  steps:
+    - id: main
+      shell: bash
+      run: >
+        python '${{ github.action_path }}/src/main.py'
+        --package '${{ inputs.package }}'
+        --target '${{ inputs.target }}'
