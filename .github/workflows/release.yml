@@ -42,7 +42,8 @@ jobs:
           command: test
           args: --all-targets --all-features --target=${{ matrix.target }} --release --verbose --locked
 
-      - uses: ./.github/actions/rust-package-binary
+      - name: Package Binaries
+        uses: ./.github/actions/rust-package-binary
         id: package
         with:
           target: ${{ matrix.target }}
