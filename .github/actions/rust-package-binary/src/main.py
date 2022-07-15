@@ -24,7 +24,7 @@ def main():
     logging.info("inputs: %s", inputs)
 
     # if not set, get default target
-    if inputs.target is None:
+    if inputs.target is None or inputs.target == "":
         inputs.target = cargo.get_default_target_triple()
         logging.info("using default target: %s", inputs.target)
 
@@ -33,7 +33,7 @@ def main():
     logging.debug("metadata: %s", metadata)
 
     # if not set, get default package
-    if inputs.package is None:
+    if inputs.package is None or inputs.package == "":
         if len(metadata.packages) != 1:
             raise ValueError(
                 "The Cargo workspace contains multiple packages, "
